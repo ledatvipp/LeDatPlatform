@@ -1,0 +1,33 @@
+language-version: 5
+prefix: ''
+command:
+  no-permission: '<#FF5A6E>You do not have permission <white>{permission}.'
+  player-only: '<#FF5A6E>This command is player-only.'
+  cooldown: '<#BFC7D5>Please wait <#5899ee>{time}s<#BFC7D5> before using this again.'
+  rate-limited: '<#FFA94D>You are doing that too fast. Try again in <#5899ee>{time}s.'
+  usage: '<#BFC7D5>Usage: <white>{usage}'
+  invalid-args: '<#FF5A6E>Invalid argument count. <#BFC7D5>Current: <white>{count}<#FF5A6E>, expected: <white>{min}<#F63E55>-{max}<#FF5A6E>. <white>Use: {usage}'
+  unknown: '<#FF5A6E>Unknown argument: <white>{argument}<#FF5A6E>. <white>Use: {usage}'
+  input-fallback: '<#FFA94D>Inventory fallback cannot collect <white>{input}<#FFA94D>. Use a 1.21.7+ client or the command fallback.'
+  error: '<#FF5A6E>Command failed. Please check console. <#BFC7D5>(<white>{error}<#FF5A6E>)'
+  reload: '<#55D68A>Core reloaded.'
+  help-header: '<#BFC7D5>Các lệnh khả dụng:'
+  help-entry: '<dark_gray>- <white>{usage}</white> <gray>{description}'
+  help-footer: '<#BFC7D5>------------------------'
+  help-empty: '<#BFC7D5>No commands are available.'
+gui:
+  title: '<dark_gray>LeDat GUI - Page {page}'
+  expired: '{prefix}<yellow>GUI <white>{menu}</white> expired. Please reopen it.'
+  error: '{prefix}<red>GUI <white>{menu}</white> failed while handling your click.'
+dialog:
+  unavailable: '{prefix}<red>Dialog is unavailable. Fallback is disabled or the action was cancelled. <gray>{reason}'
+  error: '{prefix}<red>Dialog <white>{dialog}</white> failed while handling action <white>{action}</white>.'
+forms:
+  unavailable: '{prefix}<red>Bedrock form is unavailable. <gray>{reason}'
+  not-bedrock: '{prefix}<yellow>This player is not detected as Bedrock/Floodgate.'
+  expired: '{prefix}<yellow>Form <white>{menu}</white> expired. Please reopen it.'
+  invalid: '{prefix}<red>That form response was rejected. Please reopen the menu.'
+  error: '{prefix}<red>Form <white>{menu}</white> failed while handling your action.'
+  closed: '{prefix}<gray>Form closed.'
+  unsupported-input: '{prefix}<yellow>Dialog <white>{dialog}</white> has inputs that cannot be shown safely as a Bedrock form.'
+  floodgate-missing: '{prefix}<red>Floodgate/Cumulus form bridge is unavailable. <gray>{reason}'

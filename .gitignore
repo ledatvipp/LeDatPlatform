@@ -1,0 +1,15 @@
+.gradle/
+**/.gradle/
+build/
+**/build/
+**/bin/
+**/out/
+.idea/
+*.log
+hs_err_pid*.log
+replay_pid*.log
+*.db
+*.sqlite
+*.sqlite3
+*.jar
+!gradle/wrapper/gradle-wrapper.jar

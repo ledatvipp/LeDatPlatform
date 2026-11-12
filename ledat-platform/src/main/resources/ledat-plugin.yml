@@ -1,0 +1,6 @@
+plugin-id: ledat_platform
+suite: LeDat
+core: true
+api-version: 2.0.0
+requires-platform-common: false
+storage-provider: platform-core

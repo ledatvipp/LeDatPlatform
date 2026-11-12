@@ -1,0 +1,791 @@
+config-version: 25
+
+debug:
+  enabled: false
+
+production-profile:
+  enabled: false
+  warning-interval-ms: 60000
+  database:
+    reject-main-thread-borrows: true
+  command:
+    slow-handler-warn-ms: 250
+  executors:
+    default-queue-capacity: 1024
+    # Hard cap for outstanding delayed/periodic/running tasks per managed scheduled executor.
+    scheduled-queue-capacity: 1024
+    warn-queue-size: 512
+    allow-core-timeout: true
+    shutdown-timeout-seconds: 2
+    shutdown-timeout-ms: 2000
+    # Cache the expensive all-thread diagnostic scan used by guard placeholders.
+    thread-scan-cache-ms: 5000
+    warn-unregistered-ledat-threads: true
+  scheduler:
+    warn-disabled-owner-tasks: true
+
+owner-lifecycle:
+  # Platform safety net for child plugin reload/disable. Keeps Core registries leak-free.
+  enabled: true
+  cleanup-on-plugin-disable: true
+  refresh-hooks-on-plugin-enable: true
+  log-cleanup-summary: true
+  log-stateless-cleanup: false
+  skip-stateless-plugin-disable: true
+  recent-limit: 20
+  # Bounded durability wait before the plugin-owned database/pool is closed.
+  user-cache-flush-timeout-seconds: 5
+  # One shared deadline for cache flush + executor shutdown + storage close per owner.
+  total-timeout-ms: 10000
+
+language:
+  # Default locale for console and players without a chosen locale.
+  default: vi_VN
+  # Fallback locale when a plugin bundle or key is missing.
+  fallback: vi_VN
+  # Legacy alias kept for readability; required-locales below is the loader source of truth.
+  supported:
+    - vi_VN
+    - en_US
+    - zh_CN
+  required-locales:
+    - vi_VN
+    - en_US
+    - zh_CN
+  version:
+    current: 5
+  missing-message-log-interval-ms: 60000
+  invalid-message-log-interval-ms: 60000
+  plugin-bundles:
+    # Child plugins can ship languages/<locale>.yml in their jar.
+    # LeDatPlatform copies/loads them under plugins/<ChildPlugin>/languages/<locale>.yml.
+    autoload: true
+    save-missing-bundled: true
+  diagnostics:
+    warn-loaded-bundles: 256
+    warn-missing-warning-keys: 80
+    warn-invalid-warning-keys: 20
+    warn-active-bossbars: 320
+
+scheduler:
+  # LeDatPlatform uses FoliaLib and relocates com.tcoded.folialib into the platform jar.
+  backend: FOLIALIB
+  async-warning-ms: 250
+  slow-task-warn-ms: 250
+  # Prevent repeated slow/error logs from flooding console on repeating tasks.
+  slow-task-log-interval-ms: 10000
+  task-log-errors: true
+  # false = log lỗi task rồi giữ scheduler/timer sống; true = ném lại lỗi để debug nghiêm ngặt.
+  task-rethrow-errors: false
+  task-error-log-interval-ms: 10000
+  diagnostics:
+    warn-owner-count: 64
+    warn-total-tracked-tasks: 256
+    warn-plugin-tracked-tasks: 64
+    warn-failed-tasks: 1
+    warn-slow-tasks: 1
+    list-limit: 20
+    warn-stale-one-shot-tasks: 32
+
+storage:
+  # local maps to the existing YAML/provider-local fallback stores.
+  # Set mode to mysql to use the LeDatPlatform shared database contract below.
+  # Legacy database.enabled=true is still treated as mysql by the storage config migrator.
+  # SQLITE uses plugins/LeDatPlatform/platform.db with WAL/busy-timeout.
+  # Child plugins should use Data Service standard layout: plugins/<PluginName>/storage/data.yml or data.db.
+  mode: local
+  mysql-failure-policy: disable-provider
+  standard-layout:
+    enabled: true
+    folder: storage
+    default-yaml-file: data
+    default-sqlite-file: data
+  table-prefix: ledat
+  executor:
+    core-threads: 4
+    max-threads: 12
+    # true = grow workers up to max-threads before queueing. This keeps YAML/SQLite bursts from sitting behind only core-threads.
+    scale-before-queue: true
+    queue-capacity: 8192
+    warn-queue-size: 2048
+    queue-wait-warn-ms: 250
+    queue-wait-log-interval-ms: 10000
+    allow-core-timeout: true
+    prestart-core-threads: true
+    # Keep false to avoid creating DB/file worker threads during local/YAML-only startup.
+    # SQL modes still honor prestart-core-threads for warm pools.
+    prestart-local-mode: false
+    shutdown-timeout-seconds: 3
+    shutdown-timeout-ms: 3000
+  safety:
+    log-main-thread-borrows: true
+    # Keep false until all LeDat series plugins are migrated to async DB API.
+    reject-main-thread-borrows: false
+    # Rate-limit warning spam when legacy code still borrows SQL connections from main thread.
+    main-thread-borrow-warning-interval-ms: 60000
+  query:
+    slow-query-warn-ms: 250
+    slow-query-log-interval-ms: 10000
+  health:
+    # Delay first health sweep so startup plugin enable work does not compete with
+    # storage flush/checkpoint/guard diagnostics.
+    startup-delay-ms: 15000
+    interval-ms: 10000
+  diagnostics:
+    warn-unhealthy-units: 1
+    warn-dirty-yaml-stores: 25
+    warn-slow-tasks: 50
+    warn-rejected-tasks: 1
+  verification:
+    # Runtime command: /ledatplatform storage verify [plugin|all] [--deep].
+    # Keep deep-integrity-check false by default because PRAGMA integrity_check can be expensive on large SQLite files.
+    flush-dirty-yaml: true
+    warn-dirty-yaml: true
+    checkpoint-sqlite: false
+    deep-integrity-check: false
+  pool:
+    maximum-pool-size: 12
+    minimum-idle: 2
+    connection-timeout-ms: 5000
+    validation-timeout-ms: 3000
+    idle-timeout-ms: 600000
+    max-lifetime-ms: 1800000
+    leak-detection-threshold-ms: 0
+  mysql:
+    host: 127.0.0.1
+    port: 3306
+    database: minecraft
+    username: minecraft
+    password: ""
+    ssl: false
+    cache-prepared-statements: true
+    prepared-statement-cache-size: 250
+    prepared-statement-cache-sql-limit: 2048
+    use-server-prepared-statements: true
+    tcp-keep-alive: true
+  sqlite:
+    file: platform.db
+    busy-timeout-ms: 5000
+    journal-mode: WAL
+    synchronous: NORMAL
+    wal-autocheckpoint: 1000
+    cache-size: 10000
+    temp-store: MEMORY
+    foreign-keys: true
+    journal-size-limit-bytes: 67108864
+    mmap-size-bytes: 0
+    checkpoint-on-health-check: false
+    checkpoint-on-close: true
+    checkpoint-mode: PASSIVE
+    close-checkpoint-mode: TRUNCATE
+    optimize-on-checkpoint: true
+  local-sqlite:
+    # Managed per-plugin SQLite stores created by platform.database().sqliteStore(plugin, "data").
+    # Files live at plugins/<PluginName>/storage/<name>.db and lazy-open on first use.
+    enabled: true
+    extension: .db
+    checkpoint-on-health-check: false
+    checkpoint-mode: PASSIVE
+    close-checkpoint-mode: TRUNCATE
+    optimize-on-health-check: false
+    optimize-on-checkpoint: true
+    health:
+      skip-when-pool-busy: true
+    integrity:
+      quick-check-on-health: false
+    pragma:
+      # Overrides storage.sqlite.* for per-plugin local stores. NORMAL is the balanced default; use FULL for critical ledgers if you prefer durability over write speed.
+      busy-timeout-ms: 5000
+      journal-mode: WAL
+      synchronous: NORMAL
+      wal-autocheckpoint: 1000
+      cache-size: 10000
+      temp-store: MEMORY
+      journal-size-limit-bytes: 67108864
+      mmap-size-bytes: 0
+    pool:
+      # Default 2 keeps /ledatplatform storage health responsive for plugins that hold
+      # one long-lived connection while still keeping SQLite concurrency bounded.
+      maximum-pool-size: 2
+      minimum-idle: 0
+      connection-timeout-ms: 5000
+      validation-timeout-ms: 3000
+      idle-timeout-ms: 600000
+      max-lifetime-ms: 1800000
+      leak-detection-threshold-ms: 0
+  yaml:
+    # false = batch in memory and flush on health task/disable; true = safer but more I/O.
+    write-through: false
+    # Health task writes at most this many dirty YAML stores per sweep; 0 = unlimited.
+    # Keep this above the busy-plugin count so a crash loses less recent player data without enabling write-through.
+    health-flush-max-stores: 16
+    # Save via .tmp + atomic move when supported. Keep one .bak copy before replacing existing files.
+    backup-before-replace: true
+
+database:
+  compatibility-provider:
+    # Publishes ledat.platform.database.provider.v1 for legacy/shaded LeDat modules.
+    # Only exposes shared SQL when storage.mode=mysql to avoid MySQL-only consumers using SQLite accidentally.
+    enabled: true
+  # Shared MySQL stays disabled while storage.mode is local.
+  # Set storage.mode=mysql, or legacy database.enabled=true, only after staging with real credentials.
+  enabled: false
+  type: mysql
+  host: 127.0.0.1
+  port: 3306
+  database: minecraft
+  username: minecraft
+  password: ""
+  ssl: false
+  table-prefix: ledat
+  mysql-failure-policy: disable-provider
+  pool:
+    maximum-pool-size: 12
+    minimum-idle: 2
+    connection-timeout-ms: 5000
+    validation-timeout-ms: 3000
+    idle-timeout-ms: 600000
+    max-lifetime-ms: 1800000
+    leak-detection-threshold-ms: 0
+    keepalive-time-ms: 0
+    initialization-fail-timeout-ms: 1
+  migrations:
+    enabled: true
+    acquire-timeout-ms: 10000
+    lock-ttl-ms: 60000
+  health:
+    test-query: SELECT 1
+    warn-after-ms: 1000
+    interval-ms: 15000
+    unhealthy-after-failures: 3
+  safety:
+    log-main-thread-borrows: true
+    reject-main-thread-borrows: false
+    max-concurrent-borrows: 12
+    borrow-acquire-timeout-ms: 250
+    waiting-threads-warn-threshold: 6
+  query:
+    # Compatibility metadata. The active shared worker is configured by storage.executor.*.
+    executor-core-threads: 4
+    executor-max-threads: 12
+    queue-capacity: 8192
+    slow-query-warn-ms: 250
+    default-query-timeout-seconds: 10
+    # Admission cap per normalized requester. Runtime also caps one owner at half the global storage queue.
+    default-plugin-max-queued-tasks: 2048
+  circuit-breaker:
+    # Reserved compatibility settings; circuit breaking is not active in config-version 25.
+    enabled: true
+    failure-threshold: 8
+    open-ms: 30000
+  plugin-health:
+    min-update-interval-ms: 5000
+  write-behind:
+    # Reserved compatibility settings; platform audit/ledger use their own bounded batching paths.
+    enabled: true
+    flush-interval-ms: 2000
+    max-buffered-counter-keys: 50000
+    max-buffered-counter-keys-per-plugin: 8000
+    counter-batch-size: 500
+    max-batches-per-cycle: 4
+    early-flush-trigger-percent: 70
+    early-flush-cooldown-ms: 500
+    coalesced-max-keys: 25000
+    coalesced-max-keys-per-plugin: 4000
+    coalesced-flush-max-tasks: 1000
+    audit-max-buffered-rows: 20000
+    audit-batch-size: 500
+    shutdown-flush-timeout-ms: 3000
+  hot-writes:
+    # Diagnostic policy metadata only; no automatic throttling is applied in config-version 25.
+    window-ms: 2000
+    warn-threshold-per-window: 1000
+    throttle-threshold-per-window: 5000
+  plugins:
+    # Only max-queued-tasks is enforced by the current admission guard. Priority,
+    # drop and hot-write values remain diagnostic compatibility metadata.
+    ledat_shard_transfer:
+      priority: critical
+      max-queued-tasks: 4096
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    mc_data_bridge:
+      priority: critical
+      max-queued-tasks: 4096
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    ledat_order:
+      priority: critical
+      max-queued-tasks: 4096
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    ledat_topup:
+      priority: critical
+      max-queued-tasks: 4096
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    ledat_chuyenxu:
+      priority: critical
+      max-queued-tasks: 4096
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    ledat_store:
+      priority: critical
+      max-queued-tasks: 4096
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    ledat_shop:
+      priority: high
+      max-queued-tasks: 30000
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    ledat_settings:
+      priority: high
+      max-queued-tasks: 30000
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    ledat_afkshards:
+      priority: high
+      max-queued-tasks: 30000
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    ledat_antidupe:
+      priority: high
+      max-queued-tasks: 30000
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    ledat_auctions:
+      priority: high
+      max-queued-tasks: 30000
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    ledat_bounty:
+      priority: high
+      max-queued-tasks: 30000
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    ledat_crates:
+      priority: high
+      max-queued-tasks: 30000
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    ledat_keyall:
+      priority: high
+      max-queued-tasks: 30000
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    ledat_lottery:
+      priority: high
+      max-queued-tasks: 30000
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    ledat_mythictools:
+      priority: high
+      max-queued-tasks: 30000
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    ledat_selfdestruct:
+      priority: high
+      max-queued-tasks: 30000
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    ledat_teams:
+      priority: high
+      max-queued-tasks: 30000
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    ledat_worth:
+      priority: high
+      max-queued-tasks: 30000
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    ledat_vote:
+      priority: high
+      max-queued-tasks: 30000
+      drop-when-full: false
+      hot-write-warn-threshold: 500
+      hot-write-throttle-threshold: 2000
+    ledat_betterrtp:
+      priority: normal
+      max-queued-tasks: 12000
+      drop-when-full: false
+      hot-write-warn-threshold: 250
+      hot-write-throttle-threshold: 1000
+    ledat_billford:
+      priority: normal
+      max-queued-tasks: 12000
+      drop-when-full: false
+      hot-write-warn-threshold: 250
+      hot-write-throttle-threshold: 1000
+    ledat_cosmetics:
+      priority: normal
+      max-queued-tasks: 12000
+      drop-when-full: false
+      hot-write-warn-threshold: 250
+      hot-write-throttle-threshold: 1000
+    ledat_country:
+      priority: normal
+      max-queued-tasks: 12000
+      drop-when-full: false
+      hot-write-warn-threshold: 250
+      hot-write-throttle-threshold: 1000
+    ledat_duels:
+      priority: normal
+      max-queued-tasks: 12000
+      drop-when-full: false
+      hot-write-warn-threshold: 250
+      hot-write-throttle-threshold: 1000
+    ledat_elo_tier:
+      priority: normal
+      max-queued-tasks: 12000
+      drop-when-full: false
+      hot-write-warn-threshold: 250
+      hot-write-throttle-threshold: 1000
+    ledat_hidename:
+      priority: normal
+      max-queued-tasks: 12000
+      drop-when-full: false
+      hot-write-warn-threshold: 250
+      hot-write-throttle-threshold: 1000
+    ledat_nightvision:
+      priority: normal
+      max-queued-tasks: 12000
+      drop-when-full: false
+      hot-write-warn-threshold: 250
+      hot-write-throttle-threshold: 1000
+    ledat_phantoms:
+      priority: normal
+      max-queued-tasks: 12000
+      drop-when-full: false
+      hot-write-warn-threshold: 250
+      hot-write-throttle-threshold: 1000
+    ledat_rtpzone:
+      priority: normal
+      max-queued-tasks: 12000
+      drop-when-full: false
+      hot-write-warn-threshold: 250
+      hot-write-throttle-threshold: 1000
+    ledat_tp:
+      priority: normal
+      max-queued-tasks: 12000
+      drop-when-full: false
+      hot-write-warn-threshold: 250
+      hot-write-throttle-threshold: 1000
+    ledat_chillpets:
+      priority: normal
+      max-queued-tasks: 12000
+      drop-when-full: false
+      hot-write-warn-threshold: 250
+      hot-write-throttle-threshold: 1000
+    ledat_quests:
+      priority: normal
+      max-queued-tasks: 12000
+      drop-when-full: false
+      hot-write-warn-threshold: 250
+      hot-write-throttle-threshold: 1000
+    ledat_nodeagent:
+      priority: telemetry
+      max-queued-tasks: 3000
+      drop-when-full: true
+      hot-write-warn-threshold: 100
+      hot-write-throttle-threshold: 500
+    ledat_canvas:
+      priority: telemetry
+      max-queued-tasks: 3000
+      drop-when-full: true
+      hot-write-warn-threshold: 100
+      hot-write-throttle-threshold: 500
+    ledat_findplayers:
+      priority: telemetry
+      max-queued-tasks: 3000
+      drop-when-full: true
+      hot-write-warn-threshold: 100
+      hot-write-throttle-threshold: 500
+    ledat_ping:
+      priority: telemetry
+      max-queued-tasks: 3000
+      drop-when-full: true
+      hot-write-warn-threshold: 100
+      hot-write-throttle-threshold: 500
+
+cooldown:
+  cleanup-startup-delay-seconds: 90
+  cleanup-interval-seconds: 120
+
+# Shared bounded caches for plugin-owned user data. Each cache controls its own
+# TTL, maximum size and write-behind delay through the API builder.
+user-cache:
+  maintenance-interval-seconds: 15
+
+profiles:
+  cache-ttl-seconds: 21600
+  negative-cache-ttl-seconds: 60
+  maximum-cache-size: 5000
+
+player-block-tracker:
+  # Block place/break/explosion events update the chunk PDC automatically.
+  auto-track: true
+
+command:
+  # Paper Brigadier native command registration. Existing plugin handlers still receive
+  # LeDatPlatform CommandContext, but the client sees a real command tree.
+  paper-native:
+    # Hide subcommand branches from tab suggestions when sender lacks permission.
+    # Root permission is still checked in CommandService to preserve no-permission messages.
+    permission-requirements: true
+    # Debug log each Paper command registration on lifecycle command reload.
+    log-registration: false
+    # Derive simple typed Brigadier arguments from usage strings when a command node
+    # has no explicit argument metadata. Disable if a legacy command has custom raw syntax.
+    infer-usage-arguments: true
+    # Cap each suggestion response to avoid huge permission/material lists on busy servers.
+    max-suggestions: 128
+  error:
+    cooldown-seconds: 2
+    log-interval-ms: 10000
+  defaults:
+    unknown-message-key: command.unknown
+    no-permission-message-key: command.no-permission
+    player-only-message-key: command.player-only
+    invalid-args-message-key: command.invalid-args
+    cooldown-message-key: command.cooldown
+    rate-limited-message-key: command.rate-limited
+    error-message-key: command.error
+    usage-message-key: command.usage
+  diagnostics:
+    legacy-warn-threshold: 1
+    slow-handler-log-interval-ms: 10000
+    # Backward-compatible key name; now means Paper native command registration failure should be ERROR instead of WARN.
+    missing-plugin-yml-error: false
+    list-limit: 60
+
+placeholderapi:
+  enabled: true
+
+gui:
+  default-size: 27
+  close-cleanup-delay-ticks: 1
+  session-ttl-seconds: 300
+  stale-cleanup-interval-seconds: 30
+  click-debounce-ms: 150
+  diagnostics:
+    warn-active-sessions: 200
+    warn-reopen-guards: 32
+    warn-blocked-rapid-clicks: 1000
+    warn-failed-opens: 1
+
+forms:
+  enabled: true
+  require-floodgate: false
+  prefer-for-bedrock: true
+  session-ttl-seconds: 180
+  diagnostics:
+    warn-active-sessions: 200
+    warn-failed-opens: 1
+    warn-invalid-responses: 10
+    debug-routing: false
+  dialog-routing:
+    enabled: true
+    bedrock-prefer-form: true
+    java-use-existing-dialog-service: true
+    unsupported-input-action: INVENTORY_FALLBACK
+  security:
+    one-time-submit: true
+    reject-unknown-buttons: true
+    reject-expired-sessions: true
+    clear-session-on-quit: true
+    log-invalid-response: true
+  text:
+    max-title-length: 64
+    max-content-length: 2048
+    # Used only when an Adventure object component has no sprite/head hover or readable runtime metadata.
+    object-fallback: '[icon]'
+    # Raw string options are parsed as MiniMessage. Unknown literal tags such as <player> remain visible.
+    strip-minimessage-tags: true
+
+sounds:
+  enabled: true
+  log-invalid: true
+  cues:
+    click:
+      enabled: true
+      sound: UI_BUTTON_CLICK
+      category: MASTER
+      volume: 0.8
+      pitch: 1.0
+      cooldown-ms: 80
+    confirm:
+      enabled: true
+      sound: ENTITY_PLAYER_LEVELUP
+      category: MASTER
+      volume: 0.7
+      pitch: 1.2
+      cooldown-ms: 120
+    cancel:
+      enabled: true
+      sound: BLOCK_NOTE_BLOCK_BASS
+      category: MASTER
+      volume: 0.6
+      pitch: 0.8
+      cooldown-ms: 120
+    error:
+      enabled: true
+      sound: ENTITY_VILLAGER_NO
+      category: MASTER
+      volume: 0.7
+      pitch: 1.0
+      cooldown-ms: 150
+
+
+# Paper native Dialog API wrapper. Paper introduced custom dialog API in 1.21.7;
+# LeDatPlatform will use it when runtime/player is compatible and fallback to inventory GUI otherwise.
+dialogs:
+  enabled: true
+  session-ttl-seconds: 300
+  diagnostics:
+    warn-active-sessions: 200
+    warn-native-actions: 512
+    warn-native-fallbacks: 1
+    warn-failed-opens: 1
+  actions:
+    sound:
+      cooldown-ms: 80
+      warn-missing: true
+  templates:
+    auto-save-bundled: true
+    folders:
+      - dialogs
+      - inventories
+    action-prefixes:
+      player: '[player]'
+      console: '[console]'
+      message: '[message]'
+      sound: '[sound]'
+      dialog: '[dialog]'
+      close: '[close]'
+  rich-tags:
+    enabled: true
+    # Uses Adventure object components when the runtime has them; otherwise it displays compact fallback glyphs.
+    # Supported in dialog MiniMessage strings: <item:diamond>, <item:diamond_sword>, <head:{player}>.
+    object-components:
+      enabled: true
+    # Minecraft atlas keys may change across versions. Keep configurable for future client changes.
+    item-sprite-atlas: 'minecraft:items'
+    item-sprite-prefix: 'minecraft:item/'
+    block-sprite-atlas: 'minecraft:blocks'
+    block-sprite-prefix: 'minecraft:block/'
+    fallback:
+      item-glyph: '▣'
+      head-glyph: '☻'
+  native:
+    enabled: true
+    min-client-version: '1.21.7'
+    # If ViaVersion is not installed, Paper normally only allows compatible clients.
+    # Keep true to use native dialogs on supported Paper runtime; set false to force fallback unless ViaVersion can verify client protocol.
+    assume-compatible-without-client-detector: true
+    default-columns: 2
+    default-button-width: 150
+  fallback:
+    enabled: true
+    default-size: 27
+    info-slot: 13
+    # Optional exact owner -> sanitized dialog ID -> Java inventory header MiniMessage.
+    # Supports {rows} from actual fallback slots and {title} from the semantic Dialog title.
+    # No wildcard/default entry; native Dialogs and Bedrock forms retain their semantic title.
+    inventory-titles: {}
+    input-hint-lore:
+      - '<gray>Input này chỉ nhập trực tiếp trên client hỗ trợ Dialog.'
+      - '<yellow>Fallback menu sẽ hướng dẫn command thay thế.'
+    input-slots:
+      - 4
+      - 13
+      - 22
+    action-slots:
+      - 10
+      - 11
+      - 12
+      - 14
+      - 15
+      - 16
+      - 20
+      - 22
+      - 24
+
+# Vanilla ESC -> Server Links. These are URL links only; dialogs/commands are opened by plugin commands.
+server-links:
+  enabled: true
+  server-name: 'LeDat Network'
+  # On reload/startup with many online players, send links in small batches instead
+  # of scheduling every player in one tick.
+  apply-all-on-reload: true
+  apply-all-initial-delay-ticks: 20
+  apply-all-batch-size: 25
+  apply-all-stagger-ticks: 2
+  resend-on-join-delay-ticks: 20
+  entries:
+    modern-menu:
+      enabled: true
+      label: '<#C797FF><bold>Modern Menu</bold>'
+      url: 'https://example.com/menu'
+      permission: ''
+    settings:
+      enabled: true
+      label: '<#2EEA87><bold>Settings</bold>'
+      url: 'https://example.com/settings'
+      permission: ''
+    discord:
+      enabled: true
+      label: '<#7289DA><bold>Discord</bold>'
+      url: 'https://discord.gg/your-server'
+      permission: ''
+    store:
+      enabled: true
+      label: '<#FFD166><bold>Store</bold>'
+      url: 'https://store.example.com'
+      permission: ''
+
+audit:
+  enabled: false
+  write-enabled: false
+  yaml-fallback: true
+  yaml-folder: logs/plugins/ledat-platform
+  yaml-file: platform_audit
+  flush-on-disable: true
+  # recordAll(...) uses one transaction and bounded JDBC batches.
+  sql-batch-size: 250
+  metadata:
+    max-entries: 32
+
+ledger:
+  enabled: false
+  write-enabled: false
+  yaml-folder: logs/plugins/ledat-platform
+  yaml-file: platform_ledger
+
+doctor:
+  suite:
+    list-limit: 40
+    warn-missing-command-routes: true
+    warn-plugin-not-enabled: true
+  auto-log:
+    enabled: false
+

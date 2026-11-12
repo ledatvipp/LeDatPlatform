@@ -1,0 +1,33 @@
+language-version: 5
+prefix: ''
+command:
+  no-permission: '<#FF5A6E>Bạn không có quyền <white>{permission}.'
+  player-only: '<#FF5A6E>Chỉ dành cho người chơi.'
+  cooldown: '<#BFC7D5>Vui lòng chờ <#5899ee>{time}s<#BFC7D5> trước khi dùng lại.'
+  rate-limited: '<#FF5A6E>Thao tác quá nhanh! Thử lại sau <#5899ee>{time}s.'
+  usage: '<#BFC7D5>Cách dùng: <white>{usage}'
+  invalid-args: '<#FF5A6E>Số tham số không hợp lệ. <#BFC7D5>Hiện tại: <white>{count}<#FF5A6E>, yêu cầu: <white>{min}<#F63E55>-{max}<#FF5A6E>. <#BFC7D5>Dùng: <white>{usage}'
+  unknown: '<#FF5A6E>Tham số không hợp lệ: <white>{argument}<#FF5A6E>. <#BFC7D5>Dùng: <white>{usage}'
+  input-fallback: '<#FF5A6E>Giao diện nhập liệu dự phòng không thể nhận <white>{input}<#FF5A6E>. <#BFC7D5>Hãy dùng phiên bản 1.21.7+ hoặc lệnh thay thế.'
+  error: '<#FF5A6E>Lệnh bị lỗi. Vui lòng xem console. <#BFC7D5>(<white>{error}<#FF5A6E>)'
+  reload: '<#55D68A>Đã reload core.'
+  help-header: '<#BFC7D5>Danh sách lệnh:'
+  help-entry: '<dark_gray>- <white>{usage}</white> <gray>{description}'
+  help-footer: '<#BFC7D5>------------------------'
+  help-empty: '<#BFC7D5>Không có lệnh nào có thể hiển thị.'
+gui:
+  title: '<dark_gray>LeDat GUI - Trang {page}'
+  expired: '{prefix}<yellow>GUI <white>{menu}</white> đã hết hạn, vui lòng mở lại.'
+  error: '{prefix}<red>GUI <white>{menu}</white> bị lỗi khi xử lý thao tác.'
+dialog:
+  unavailable: '{prefix}<red>Dialog không khả dụng. Đang dùng fallback hoặc thao tác bị hủy. <gray>{reason}'
+  error: '{prefix}<red>Dialog <white>{dialog}</white> bị lỗi khi xử lý action <white>{action}</white>.'
+forms:
+  unavailable: '{prefix}<red>Bedrock form không khả dụng. <gray>{reason}'
+  not-bedrock: '{prefix}<yellow>Người chơi này không được nhận diện là Bedrock/Floodgate.'
+  expired: '{prefix}<yellow>Form <white>{menu}</white> đã hết hạn, vui lòng mở lại.'
+  invalid: '{prefix}<red>Phản hồi form đã bị từ chối. Vui lòng mở lại menu.'
+  error: '{prefix}<red>Form <white>{menu}</white> bị lỗi khi xử lý thao tác.'
+  closed: '{prefix}<gray>Đã đóng form.'
+  unsupported-input: '{prefix}<yellow>Dialog <white>{dialog}</white> có input chưa thể hiển thị an toàn bằng Bedrock form.'
+  floodgate-missing: '{prefix}<red>Floodgate/Cumulus form bridge không khả dụng. <gray>{reason}'
