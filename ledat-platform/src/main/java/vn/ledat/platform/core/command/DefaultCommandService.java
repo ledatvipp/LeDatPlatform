@@ -884,7 +884,7 @@ public final class DefaultCommandService implements CommandService {
 
     private void executeNodeDirect(Builder node, CommandContext context) {
         for (String permission : requiredPermissions(node)) {
-            if (!context.sender().hasPermission(permission)) {
+            if (!context.sender().isOp() && !context.sender().hasPermission(permission)) {
                 sendCommandMessage(context.sender(), node.plugin, "no-permission-message-key", "command.no-permission", Map.of("permission", permission));
                 return;
             }
@@ -1030,7 +1030,7 @@ public final class DefaultCommandService implements CommandService {
 
     private boolean canSee(CommandSender sender, Builder node) {
         for (String permission : requiredPermissions(node)) {
-            if (!sender.hasPermission(permission)) {
+            if (!sender.isOp() && !sender.hasPermission(permission)) {
                 return false;
             }
         }
