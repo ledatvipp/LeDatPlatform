@@ -401,40 +401,40 @@ public final class LeDatMessages {
         config.set("meta.language", language);
         config.set("meta.display-name", LeDatLanguageCodes.displayName(language));
         config.set("meta.format", "MiniMessage");
-        config.set("style.prefix", "<#C797FF>" + plugin.getName() + " <dark_gray>» ");
-        config.set("style.lore-bullet", " <dark_gray>○ <gray>");
-        config.set("style.lore-action", " <#C797FF>Nhấn <white>để thao tác");
+        config.set("style.prefix", "");
+        config.set("style.lore-bullet", "<dark_gray> ○ <white>");
+        config.set("style.lore-action", "<#A8D8EA>Nhấn <white>để thao tác");
         config.set("style.no-italic", true);
-        config.set("common.prefix", "<#C797FF>" + plugin.getName() + " <dark_gray>» ");
-        config.set("common.no-permission", "{prefix}<red>Bạn không có quyền dùng lệnh này.");
-        config.set("common.player-only", "{prefix}<red>Lệnh này chỉ dành cho người chơi.");
-        config.set("common.reload", "{prefix}<green>Đã reload cấu hình và ngôn ngữ.");
-        config.set("common.reload-failed", "{prefix}<red>Reload thất bại. Kiểm tra console để biết thêm chi tiết.");
-        config.set("common.invalid-usage", "{prefix}<red>Sai cú pháp. Dùng <white>{usage}<red>.");
-        config.set("common.invalid-number", "{prefix}<red>Số không hợp lệ.");
-        config.set("common.player-not-found", "{prefix}<red>Không tìm thấy người chơi <white>{player}<red>.");
-        config.set("common.error", "{prefix}<red>Có lỗi xảy ra. Vui lòng thử lại sau.");
+        config.set("common.prefix", "");
+        config.set("common.no-permission", "{prefix}<#FF5A6E>Bạn không có quyền dùng lệnh này.");
+        config.set("common.player-only", "{prefix}<#FF5A6E>Lệnh này chỉ dành cho người chơi.");
+        config.set("common.reload", "{prefix}<#55D68A>Đã reload cấu hình và ngôn ngữ.");
+        config.set("common.reload-failed", "{prefix}<#FF5A6E>Reload thất bại. Kiểm tra console để biết thêm chi tiết.");
+        config.set("common.invalid-usage", "{prefix}<#FF5A6E>Sai cú pháp. Dùng <white>{usage}<#FF5A6E>.");
+        config.set("common.invalid-number", "{prefix}<#FF5A6E>Số không hợp lệ.");
+        config.set("common.player-not-found", "{prefix}<#FF5A6E>Không tìm thấy người chơi <#57C7FF>{player}<#FF5A6E>.");
+        config.set("common.error", "{prefix}<#FF5A6E>Có lỗi xảy ra. Vui lòng thử lại sau.");
         if (LeDatLanguageCodes.EN_US.equals(LeDatLanguageCodes.normalize(language))) {
-            config.set("style.lore-action", " <#C797FF>Click <white>to use");
-            config.set("common.no-permission", "{prefix}<red>You do not have permission to use this command.");
-            config.set("common.player-only", "{prefix}<red>This command can only be used by players.");
-            config.set("common.reload", "{prefix}<green>Configuration and language files reloaded.");
-            config.set("common.reload-failed", "{prefix}<red>Reload failed. Check console for details.");
-            config.set("common.invalid-usage", "{prefix}<red>Invalid usage. Use <white>{usage}<red>.");
-            config.set("common.invalid-number", "{prefix}<red>Invalid number.");
-            config.set("common.player-not-found", "{prefix}<red>Player <white>{player}<red> was not found.");
-            config.set("common.error", "{prefix}<red>An error occurred. Please try again later.");
+            config.set("style.lore-action", "<#A8D8EA>Click <white>to use");
+            config.set("common.no-permission", "{prefix}<#FF5A6E>You do not have permission to use this command.");
+            config.set("common.player-only", "{prefix}<#FF5A6E>This command can only be used by players.");
+            config.set("common.reload", "{prefix}<#55D68A>Configuration and language files reloaded.");
+            config.set("common.reload-failed", "{prefix}<#FF5A6E>Reload failed. Check console for details.");
+            config.set("common.invalid-usage", "{prefix}<#FF5A6E>Invalid usage. Use <white>{usage}<#FF5A6E>.");
+            config.set("common.invalid-number", "{prefix}<#FF5A6E>Invalid number.");
+            config.set("common.player-not-found", "{prefix}<#FF5A6E>Player <#57C7FF>{player}<#FF5A6E> was not found.");
+            config.set("common.error", "{prefix}<#FF5A6E>An error occurred. Please try again later.");
         }
         if (LeDatLanguageCodes.ZH_CN.equals(LeDatLanguageCodes.normalize(language))) {
-            config.set("style.lore-action", " <#C797FF>点击 <white>进行操作");
-            config.set("common.no-permission", "{prefix}<red>你没有权限使用此命令。");
-            config.set("common.player-only", "{prefix}<red>该命令只能由玩家使用。");
-            config.set("common.reload", "{prefix}<green>配置和语言文件已重新加载。");
-            config.set("common.reload-failed", "{prefix}<red>重载失败，请查看控制台了解详情。");
-            config.set("common.invalid-usage", "{prefix}<red>用法错误。请使用 <white>{usage}<red>。");
-            config.set("common.invalid-number", "{prefix}<red>数字无效。");
-            config.set("common.player-not-found", "{prefix}<red>未找到玩家 <white>{player}<red>。");
-            config.set("common.error", "{prefix}<red>发生错误，请稍后再试。");
+            config.set("style.lore-action", "<#A8D8EA>点击 <white>进行操作");
+            config.set("common.no-permission", "{prefix}<#FF5A6E>你没有权限使用此命令。");
+            config.set("common.player-only", "{prefix}<#FF5A6E>该命令只能由玩家使用。");
+            config.set("common.reload", "{prefix}<#55D68A>配置和语言文件已重新加载。");
+            config.set("common.reload-failed", "{prefix}<#FF5A6E>重载失败，请查看控制台了解详情。");
+            config.set("common.invalid-usage", "{prefix}<#FF5A6E>用法错误。请使用 <white>{usage}<#FF5A6E>。");
+            config.set("common.invalid-number", "{prefix}<#FF5A6E>数字无效。");
+            config.set("common.player-not-found", "{prefix}<#FF5A6E>未找到玩家 <#57C7FF>{player}<#FF5A6E>。");
+            config.set("common.error", "{prefix}<#FF5A6E>发生错误，请稍后再试。");
         }
         return config;
     }
@@ -514,7 +514,7 @@ public final class LeDatMessages {
                 prefix = fallback.getString("style.prefix");
             }
         }
-        return prefix == null ? "<#C797FF>" + plugin.getName() + " <dark_gray>» " : prefix.replace("{plugin}", plugin.getName());
+        return prefix == null ? "" : prefix.replace("{plugin}", plugin.getName());
     }
 
     private static Component deserializeSmart(JavaPlugin plugin, String key, String raw) {

@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public final class LeDatPlatformPlugin extends JavaPlugin {
     public static final int CONFIG_VERSION = 25;
-    public static final int LANGUAGE_VERSION = 5;
+    public static final int LANGUAGE_VERSION = 6;
 
     private DefaultScheduler scheduler;
     private DefaultPlatformLogger logger;
